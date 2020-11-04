@@ -1,0 +1,10 @@
+{
+  "nodePath": "/home/administrator/demoPOA2/node0/",
+  "ethAddress": "0x647F089F75db1874e574419d20C34b078797c4c5",
+  "ethPassword": "1",
+  "balanceContractAddr": "0xd0D17fA417a155Ad14818a5Ce0AB2841FEa0eC8A",
+  "accessContractAddr": "0x1C9c39465a016D0bE5204879e5C6bd0323AC31FC",
+  "dataContractAddr": "0xaE05A004892Efc62F84AB95cB5Fc649d4F0CC096",
+  "HTTPport": "5050",
+  "HTTPSport": "8050"
+}
