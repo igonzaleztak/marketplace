@@ -3,11 +3,14 @@ package libs
 import (
 	"crypto/ecdsa"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"regexp"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+
+	cipher "../cipherLibs"
 )
 
 // Gets the file that contains the private key of the admin
@@ -58,18 +61,45 @@ func GetPrivateKey(address, password, folderPath string) (*ecdsa.PrivateKey, err
 	return keyWrapper.PrivateKey, nil
 }
 
-// CheckAccess checks whether an IoT producer has access to the Blockchain
-func CheckAccess(ethClient ComponentConfig) error {
-	// Check if the IoT producer has access to the Blockchain
-	hasAccess, err := ethClient.AccessCon.AllowedAccounts(nil, ethClient.Address)
+// CheckAccess checks whether an IoT producer can insert a measurement
+// in the Blockchain. To do so, it checks if the signature has been produced
+// by an authorized IoT producer.
+func CheckAccess(ethClient ComponentConfig, body []byte) (string, []byte, error) {
+	// Separate the address and encrypted body from the signature to check the signature.
+	// The last 65 bytes of the body is the signature [R || S || V].
+	msg := body[:len(body)-65]
+	signature := body[len(body)-65:]
+
+	// Get the hash of the measurement
+	hash := cipher.HashData(msg)
+
+	// Recover the public key and the Ethereum address that signed the measurement
+	iotAddr, _, err := cipher.RecoverDataFromSignature(hash, signature)
 	if err != nil {
-		return err
+		return "", nil, err
 	}
 
-	// If the returned value is false, then the IoT producer has not access
-	// to the platform.
-	if !hasAccess {
-		return errors.New("This account does not have access to the marketplace")
+	// Check if the address has access
+	hasAccess, err := ethClient.AccessCon.AllowedAccounts(nil, iotAddr)
+	if err != nil {
+		return "", nil, err
 	}
-	return nil
+	if !hasAccess {
+		return "", nil, errors.New("This address is not authorized to introduce content in the marketplace")
+	}
+
+	fmt.Println("The measurement is properly signed")
+
+	// Get the name of the IoT producer from its address
+	iotName, err := ethClient.AccessCon.ProducersNameMap(nil, iotAddr)
+	if err != nil {
+		return "", nil, err
+	}
+	if iotName == "" {
+		return "", nil, errors.New("The IoT producer's name is not registered in the Blockchain")
+	}
+
+	fmt.Println("Measurement received from: " + fmt.Sprintf("%x", iotAddr) + " (" + iotName + ")")
+
+	return iotName, hash, nil
 }

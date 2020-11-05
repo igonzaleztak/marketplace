@@ -1,14 +1,14 @@
 {
   "dbHost" : "127.0.0.1:3306",
-  "dbTable": "marketplace",
+  "dbName": "marketplace",
   "dbUsername": "marketplace",
   "dbPassword": "telematica",
   "nodePath": "/home/administrator/demoPOA2/node0/",
   "ethAddress": "0x647F089F75db1874e574419d20C34b078797c4c5",
   "ethPassword": "1",
-  "balanceContractAddr": "0x915dA9946937B330DDA237DcbE66C903041297f9",
-  "accessContractAddr": "0xF0092B5dFF563dCf64324B461325D241E85E2F3c",
-  "dataContractAddr": "0x535658d5924672176dEc0577596aF29EcCDb1aD5",
+  "balanceContractAddr": "0xd0D17fA417a155Ad14818a5Ce0AB2841FEa0eC8A",
+  "accessContractAddr": "0x0F47d696A98ABE52CfBC399f989A687dcF4791A2",
+  "dataContractAddr": "0xf539f777f7389a4f8489E27F68cf3A55b2b2568A",
   "HTTPport": "5051",
   "HTTPSport": "8051"
 }
