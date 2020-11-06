@@ -127,7 +127,7 @@ func (localEthClient localClient) measurementListener(w http.ResponseWriter, req
 			http.Error(w, "500 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
 		}
 
-		// Create JSON anwser
+		// Create JSON response
 		jsonResponse := make(map[string]interface{})
 		jsonResponse["url"] = url
 		err = json.NewEncoder(w).Encode(jsonResponse)

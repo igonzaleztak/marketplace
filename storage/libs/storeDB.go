@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	// mysql Driver
 	_ "github.com/go-sql-driver/mysql"
@@ -12,7 +13,8 @@ import (
 // StoreInDB stores the measurement in the database and returns the URL
 // where is located.
 func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, iotName string) (string, error) {
-	// Remove the address from the body of the measurement
+
+	iotName = strings.ToLower(iotName)
 
 	// The format of the URL to the database is:
 	// 	user:password@tcp(dbHost)/dbName
@@ -29,20 +31,8 @@ func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, io
 
 	defer db.Close()
 
-	// Check the measurement has not been stored yet
-	query := fmt.Sprintf("SELECT Hash FROM %s WHERE Hash='%s';", iotName, hash)
-	dbResp, err := db.Query(query)
-	if err != nil {
-		return "", err
-	}
-	// Returns True if there is a match in the DB.
-	isStored := dbResp.Next()
-	if isStored {
-		return "", errors.New("The measurement has already been stored in the database")
-	}
-
 	// Create table for the IoT producer
-	query = fmt.Sprintf("CREATE TABLE %s(Hash CHAR(64), Measurement MEDIUMTEXT);", iotName)
+	query := fmt.Sprintf("CREATE TABLE %s(Hash CHAR(64), Measurement MEDIUMTEXT);", iotName)
 
 	// Do query
 	// Error 1050 means that the table has already been created,
@@ -54,6 +44,18 @@ func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, io
 		if errorCode != "Error 1050" {
 			return "", err
 		}
+	}
+
+	// Check the measurement has not been stored yet
+	query = fmt.Sprintf("SELECT Hash FROM %s WHERE Hash='%s';", iotName, hash)
+	dbResp, err := db.Query(query)
+	if err != nil {
+		return "", err
+	}
+	// Returns True if there is a match in the DB.
+	isStored := dbResp.Next()
+	if isStored {
+		return "", errors.New("The measurement has already been stored in the database")
 	}
 
 	// Insert the measurement in the Table

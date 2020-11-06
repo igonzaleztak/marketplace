@@ -111,6 +111,13 @@ func initialize() localClient {
 		panic(err)
 	}
 
+	// Set the data contract address in the balance contract
+	_, err = balanceContract.SetAddress(auth, common.HexToAddress(config["dataContractAddr"].(string)))
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
 	localEthClient := localClient{
 		client,
 		common.HexToAddress(config["ethAddress"].(string)),
@@ -127,16 +134,46 @@ func initialize() localClient {
 }
 
 // EventListener listens to new purchases in the marketplace and process them
-func (localEthClient *localClient) EventListener(w http.ResponseWriter, req *http.Request) {}
+func (localEthClient *localClient) MarketListener(w http.ResponseWriter, req *http.Request) {
+	// Check whether the URL is correct or not
+	if req.URL.Path != "/marketplace" {
+		http.Error(w, "404 not found", http.StatusNotFound)
+		return
+	}
+	// Check if the method of the request is correct
+	switch req.Method {
+	case "POST":
+
+	default:
+		http.Error(w, "401 Only POST methods are supported", http.StatusBadRequest)
+		fmt.Fprintf(w, "Only Post methods are supported")
+	}
+
+}
 
 func main() {
 	fmt.Printf("----------- Initializing Storage module -----------\n\n")
-	localEthClient := initialize()
+	localClient := initialize()
 
-	fmt.Printf("Starting server on port %s\n\n", localEthClient.GeneralConfig["HTTPport"].(string))
-	http.HandleFunc("/marketplace", localEthClient.EventListener)
+	fmt.Printf("Starting server on port %s\n\n", localClient.GeneralConfig["HTTPport"].(string))
+	http.HandleFunc("/marketplace", localClient.MarketListener)
 
-	err := http.ListenAndServe(":"+localEthClient.GeneralConfig["HTTPport"].(string), nil)
+	// Convert the localClient to libs.ComponentConfig
+	ethClient := libs.ComponentConfig{
+		localClient.EthereumClient,
+		localClient.Address,
+		localClient.PrivateKey,
+		localClient.PublicKey,
+		localClient.DataCon,
+		localClient.AccessCon,
+		localClient.BalanceCon,
+		localClient.GeneralConfig,
+	}
+
+	// Run the purchases manager thread
+	go libs.ManagePurchases(ethClient)
+
+	err := http.ListenAndServe(":"+localClient.GeneralConfig["HTTPport"].(string), nil)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)

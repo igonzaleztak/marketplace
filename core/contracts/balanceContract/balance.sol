@@ -1,8 +1,14 @@
 pragma solidity >=0.4.0 <= 0.6.1;
 import "./ERC20.sol";
 
+contract dataLedgerContract {
+    function getIoTAddress(bytes32 hash) public view returns (address){}
+}
+
+
 contract balanceContract is ERC20Basic 
 {
+    dataLedgerContract dataContractDef;
     
     struct retainedMoneyStruct {
         address ownerMeasurement;
@@ -22,7 +28,10 @@ contract balanceContract is ERC20Basic
     
     
     function setPriceToMeasurement(bytes32 hash, uint256 price) public  {
-        require(msg.sender == admin, "You do not have enough privileges to do this action");
+        // Check that the account that is setting the price is the one who inserted
+        // the measurement
+        address iotAddr = dataContractDef.getIoTAddress(hash);
+        require(msg.sender == iotAddr, "Only the account who inserted the data can set its price");
         prices[hash] = price;
         emit PriceSet(hash, price);
     }
@@ -82,5 +91,13 @@ contract balanceContract is ERC20Basic
         transfer(to, total);
         emit AdquireTokens(to, total);
     }
+    
+    
+    // Set data address in this contract to read the variable ledger
+    function setAddress(address _address) public {
+        require(msg.sender == admin, "You do not have privileges to do this action");
+        dataContractDef = dataLedgerContract(_address);
+    }
+    
     
 }

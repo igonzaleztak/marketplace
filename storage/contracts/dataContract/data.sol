@@ -73,4 +73,11 @@ contract dataLedgerContract
         return accessContract.allowedAccounts(producer);
     }
     
+    
+    // Get the IoT address from a stored dataStruct
+    function getIoTAddress(bytes32 hash) public view returns (address) {
+        return ledger[hash].addr;
+    }
+    
+    
 }
