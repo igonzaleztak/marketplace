@@ -142,6 +142,26 @@ func (localEthClient localClient) measurementListener(w http.ResponseWriter, req
 	}
 }
 
+// Anwsers the requests of the admin platform
+func (localEthClient localClient) MeasurementsEP(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/measurement" {
+		http.Error(w, "404 not found", http.StatusNotFound)
+		return
+	}
+
+	// Convert the local struct to global struct
+	userEthClient := libs.ComponentConfig{
+		localEthClient.EthereumClient,
+		localEthClient.Address,
+		localEthClient.PrivateKey,
+		localEthClient.DataCon,
+		localEthClient.AccessCon,
+		localEthClient.GeneralConfig,
+	}
+
+	_ = userEthClient
+}
+
 func main() {
 	fmt.Printf("----------- Initializing Storage module -----------\n\n")
 	localEthClient := initialize()
@@ -150,6 +170,9 @@ func main() {
 
 	// Route to process the measurements of the IoT producers
 	http.HandleFunc("/store", localEthClient.measurementListener)
+
+	// Route to give back the measurements
+	http.HandleFunc("/measurement", localEthClient.MeasurementsEP)
 
 	err := http.ListenAndServe(":"+localEthClient.GeneralConfig["HTTPport"].(string), nil)
 	if err != nil {

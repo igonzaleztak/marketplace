@@ -2,9 +2,10 @@
   "nodePath": "/home/administrator/demoPOA2/node0/",
   "ethAddress": "0x647F089F75db1874e574419d20C34b078797c4c5",
   "ethPassword": "1",
-  "balanceContractAddr": "0xe6a9614802bE08f51865e38BD2D79fe36571E5BF",
+  "balanceContractAddr": "0x934524EeFEf32AA5859276A6E833b8Ccc011E5e8",
   "accessContractAddr": "0x0F47d696A98ABE52CfBC399f989A687dcF4791A2",
-  "dataContractAddr": "0x97B82ebE662d06609E97D744d3e1677469B172D3",
+  "dataContractAddr": "0xcFE5d752c42186bc1CAef155e35B89BebB43B5B3",
   "HTTPport": "5050",
-  "HTTPSport": "8050"
+  "HTTPSport": "8050",
+  "totalSupply": 1000000
 }

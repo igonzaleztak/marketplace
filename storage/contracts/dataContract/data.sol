@@ -18,7 +18,7 @@ contract dataLedgerContract
     
     accessControlContract accessContract;
     
-    event evtStoreInfo(bytes32 indexed _hash, string _uri);
+    event evtStoreInfo(bytes32 indexed _hash, string _uri, string _description);
     event deleteInfo(bytes32 indexed _hash);
     address admin = 0x647F089F75db1874e574419d20C34b078797c4c5;
     
@@ -38,7 +38,7 @@ contract dataLedgerContract
         ledger[hash] = dataToStore;
         
         // Emit an event once the data has been stored in the blockchain
-        emit evtStoreInfo(hash, uri);
+        emit evtStoreInfo(hash, uri, description);
     }
     
     
