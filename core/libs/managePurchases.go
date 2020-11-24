@@ -26,18 +26,22 @@ func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 	auth.GasLimit = uint64(400000)
 	auth.GasPrice = big.NewInt(0)
 
+	// Purchase ID (TxHash of the event)
+	purchaseID := vLog.Topics[0].Hex()
+
 	// Get the address of the account who purchased the measurement
 	clientAddrHex := vLog.Topics[2].Hex()
 	clientAddr := common.HexToAddress(clientAddrHex[2:])
 
 	// Get the address of the owner of the measurement
 	iotAddrHex := vLog.Topics[3].Hex()
+	iotAddr := common.HexToAddress(iotAddrHex)
 
 	// Get the hash from the log
 	hash := vLog.Topics[1].Hex()
 	formattedHash := ByteToByte32(common.Hex2Bytes(hash[2:]))
 
-	fmt.Printf("+ %s: Purchase Request (%s ----> %s)", hash, clientAddrHex, iotAddrHex)
+	fmt.Printf("+ %s: Purchase Request %s (%s ----> %s)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
 
 	// Get the url where the measurement is stored
 	dataStruct, err := ethClient.DataCon.Ledger(nil, formattedHash)
@@ -116,7 +120,7 @@ func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 		return
 	}
 
-	fmt.Printf("+ %s: Purchase Completed (%s ----> %s)", hash, clientAddrHex, iotAddrHex)
+	fmt.Printf("+ %s: Purchase Completed %s (%s ----> %s)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
 }
 
 // ManagePurchases listens to the purchases events in

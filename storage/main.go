@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/gorilla/mux"
 
 	accessControlContract "./contracts/accessContract"
 	dataContract "./contracts/dataContract"
@@ -93,10 +96,6 @@ func initialize() localClient {
 // Listens the measurements provided by the IoT producers and
 // responds them with the URL where the measurement has been stored
 func (localEthClient localClient) measurementListener(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/store" {
-		http.Error(w, "404 not found", http.StatusNotFound)
-		return
-	}
 
 	// Convert the local struct to global struct
 	userEthClien := libs.ComponentConfig{
@@ -108,46 +107,36 @@ func (localEthClient localClient) measurementListener(w http.ResponseWriter, req
 		localEthClient.GeneralConfig,
 	}
 
-	switch req.Method {
-	case "POST":
-		fmt.Printf("Request received from %s\n", req.Host)
-		bodyBytes := libs.StreamToByte(req.Body)
+	fmt.Printf("Request received from %s\n", req.Host)
+	bodyBytes := libs.StreamToByte(req.Body)
 
-		// Check if the producer can introduce information in the Blockchain
-		iotName, hash, err := libs.CheckAccess(userEthClien, bodyBytes)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "401 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
-		}
-
-		// Store the information in the database
-		url, err := libs.StoreInDB(userEthClien.GeneralConfig, bodyBytes[:len(bodyBytes)-65], fmt.Sprintf("%x", hash), iotName)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "500 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
-		}
-
-		// Create JSON response
-		jsonResponse := make(map[string]interface{})
-		jsonResponse["url"] = url
-		err = json.NewEncoder(w).Encode(jsonResponse)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "500 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
-		}
-
-	default:
-		http.Error(w, "401 Only POST methods are supported", http.StatusBadRequest)
-		fmt.Fprintf(w, "Only Post methods are supported")
+	// Check if the producer can introduce information in the Blockchain
+	iotName, hash, err := libs.CheckAccess(userEthClien, bodyBytes)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "401 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
 	}
+
+	// Store the information in the database
+	url, err := libs.StoreInDB(userEthClien.GeneralConfig, bodyBytes[:len(bodyBytes)-65], fmt.Sprintf("%x", hash), iotName)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "500 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
+	}
+
+	// Create JSON response
+	jsonResponse := make(map[string]interface{})
+	jsonResponse["url"] = url
+	err = json.NewEncoder(w).Encode(jsonResponse)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "500 Could not introduce the event in the blockchain due to: "+err.Error(), http.StatusBadRequest)
+	}
+
 }
 
 // Anwsers the requests of the admin platform
 func (localEthClient localClient) MeasurementsEP(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path != "/measurement" {
-		http.Error(w, "404 not found", http.StatusNotFound)
-		return
-	}
 
 	// Convert the local struct to global struct
 	userEthClient := libs.ComponentConfig{
@@ -159,7 +148,29 @@ func (localEthClient localClient) MeasurementsEP(w http.ResponseWriter, req *htt
 		localEthClient.GeneralConfig,
 	}
 
-	_ = userEthClient
+	// Create a map with body of the message
+	var body map[string]interface{}
+
+	// Read the body of the message
+	err := json.NewDecoder(req.Body).Decode(&body)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Retrieve the measurement from the database
+	responseJSON, err := libs.RetrieveMeasurement(userEthClient, body, req)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(responseJSON)
+	return
 }
 
 func main() {
@@ -168,16 +179,21 @@ func main() {
 
 	fmt.Printf("Starting server on port %s\n\n", localEthClient.GeneralConfig["HTTPport"].(string))
 
+	// Init the route handler
+	r := mux.NewRouter()
+
 	// Route to process the measurements of the IoT producers
-	http.HandleFunc("/store", localEthClient.measurementListener)
+	r.HandleFunc("/store", localEthClient.measurementListener).Methods("POST")
 
 	// Route to give back the measurements
-	http.HandleFunc("/measurement", localEthClient.MeasurementsEP)
+	r.HandleFunc("/measurements/{table}/{hash}", localEthClient.MeasurementsEP).Methods("POST")
 
-	err := http.ListenAndServe(":"+localEthClient.GeneralConfig["HTTPport"].(string), nil)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         ":" + localEthClient.GeneralConfig["HTTPport"].(string),
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
 	}
 
+	log.Fatal(srv.ListenAndServe())
 }

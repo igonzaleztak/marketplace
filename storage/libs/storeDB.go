@@ -37,7 +37,7 @@ func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, io
 	// Do query
 	// Error 1050 means that the table has already been created,
 	// so ignore the error message.
-	_, err = db.Query(query)
+	create, err := db.Query(query)
 	if err != nil {
 		errorText := err.Error()
 		errorCode := errorText[:10]
@@ -46,12 +46,17 @@ func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, io
 		}
 	}
 
+	defer create.Close()
+
 	// Check the measurement has not been stored yet
 	query = fmt.Sprintf("SELECT Hash FROM %s WHERE Hash='%s';", iotName, hash)
 	dbResp, err := db.Query(query)
 	if err != nil {
 		return "", err
 	}
+
+	defer dbResp.Close()
+
 	// Returns True if there is a match in the DB.
 	isStored := dbResp.Next()
 	if isStored {
@@ -62,10 +67,12 @@ func StoreInDB(configParams map[string]interface{}, measurement []byte, hash, io
 	query = fmt.Sprintf("INSERT INTO %s VALUES('%s', '%s')", iotName, hash, measurement)
 
 	// Do Query
-	_, err = db.Query(query)
+	insert, err := db.Query(query)
 	if err != nil {
 		return "", err
 	}
+
+	defer insert.Close()
 
 	fmt.Printf("\n%s: Stored in the Database\n", hash)
 
