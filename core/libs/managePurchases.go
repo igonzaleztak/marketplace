@@ -16,8 +16,9 @@ import (
 )
 
 // Complete the purchases produced in the Blockchain.
-// 	- Decipher the URL with the private key
-//	- Cipher the URL with the public key of the client
+// 	- Decipher the symmetric key and the URL with the private key
+//	- Cipher the URL and the symmetric key with the public key of the client
+//		and send them to the customer through a BC transaction
 //	- Complete the transaction of tokens
 func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 
