@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	cipher "../cipherLibs"
+	cipher "marketplace/core/cipherLibs"
 )
 
 // Complete the purchases produced in the Blockchain.
@@ -42,7 +42,7 @@ func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 	hash := vLog.Topics[1].Hex()
 	formattedHash := ByteToByte32(common.Hex2Bytes(hash[2:]))
 
-	fmt.Printf("+ %s: Purchase Request %s (%s ----> %s)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
+	log.Printf("+ %s: Purchase Request %s (%s ----> %s\n)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
 
 	// Get the url where the measurement is stored
 	dataStruct, err := ethClient.DataCon.Ledger(nil, formattedHash)
@@ -57,6 +57,7 @@ func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 
 	decryptedURL, err := cipher.DecryptWithPrivateKey(ethClient.PrivateKey, common.Hex2Bytes(dataStruct.Uri))
 	if err != nil {
+		log.Println(err)
 		// revoke transaction
 		_, err := ethClient.BalanceCon.RevokeTransaction(auth, formattedHash, clientAddr)
 		if err != nil {
@@ -121,7 +122,7 @@ func completePurchase(ethClient ComponentConfig, vLog types.Log) {
 		return
 	}
 
-	fmt.Printf("+ %s: Purchase Completed %s (%s ----> %s)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
+	log.Printf("\n+ %s: Purchase Completed %s (%s ----> %s)", purchaseID, hash, clientAddr.Hex(), iotAddr.Hex())
 }
 
 // ManagePurchases listens to the purchases events in

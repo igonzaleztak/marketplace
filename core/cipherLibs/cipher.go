@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 
-	ecies "github.com/ecies/go"
+	ecies "marketplace/core/libs/ecies"
 )
 
 // EncryptWithPublicKey encrypts a message using ECIES

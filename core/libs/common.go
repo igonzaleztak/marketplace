@@ -11,9 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	accessControlContract "../contracts/accessContract"
-	balanceContract "../contracts/balanceContract"
-	dataContract "../contracts/dataContract"
+	accessControlContract "marketplace/core/contracts/accessContract"
+	balanceContract "marketplace/core/contracts/balanceContract"
+	dataContract "marketplace/core/contracts/dataContract"
 )
 
 // ComponentConfig is a struct that stores the parameters of the node

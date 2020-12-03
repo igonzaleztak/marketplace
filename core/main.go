@@ -13,10 +13,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	accessControlContract "./contracts/accessContract"
-	balanceContract "./contracts/balanceContract"
-	dataContract "./contracts/dataContract"
-	libs "./libs"
+	accessControlContract "marketplace/core/contracts/accessContract"
+	balanceContract "marketplace/core/contracts/balanceContract"
+	dataContract "marketplace/core/contracts/dataContract"
+	libs "marketplace/core/libs"
 )
 
 // Local definition of the struct libs.ComponentConfig
