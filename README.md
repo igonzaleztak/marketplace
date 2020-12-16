@@ -17,6 +17,6 @@ The marketplace is in charge of listening to the purchase events produced in the
 Customers can use a webserver (Clients Wallet) to browse and purchase the different measurements available in the platform. Through this component, clients can purchase measurements and see their value easily. 
 
 <p align="center">
-  <img src="./docs/images/gen-arch.svg" height="400px" width="700px">
+  <img src="docs/images/gen-arch.png" height="400px" width="700px" alt="Image">
   <p align="center" id="gen-arch">General architecture of the platform</p>
 </p>
