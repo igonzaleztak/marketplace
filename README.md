@@ -54,4 +54,4 @@ In the previous figure, the delivery of the purchased measurements to clients ar
 <h2>Components involved</h2>
 <li><strong><a href="#marketplace">Marketplace</a></strong></li>
 <li><strong><a href="https://github.com/igonzaleztak/IoT-proxy">IoT Connector</a></strong></li>
-<li><strong><a href="">Client interface</a></strong></li>
+<li><strong><a href="https://github.com/igonzaleztak/nodejs-wallet">Client Wallet</a></strong></li>
