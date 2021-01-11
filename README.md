@@ -37,7 +37,7 @@ The marketplace is responsible of ruling the smart contracts running in the Bloc
 This component uses its own IPFS node to retrieve the value of the measurements from the IPFS network.
 
 Funcionalities:
-<li>Register IoT suppliers in the platform so they can purchase measurements. To do this, it assigns Ethereum accounts to IoT suppliers and register them in the access control smart contract.</li>
+<li>Register IoT suppliers in the platform so they can sell measurements. To do this, it assigns Ethereum accounts to IoT suppliers and register them in the access control smart contract.</li>
 <li>Listens the purchasing request events produced within the Blockchain and process them. This component is always listening the interactions within the Blockchain.</li>
 <li>Acts as an access point for the administrator of the platform. From this component, he can change remove measurements from the platform or revoke transactions.</li>
 
