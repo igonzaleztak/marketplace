@@ -42,7 +42,7 @@ Funcionalities:
 <li>Acts as an access point for the administrator of the platform. From this component, he can change remove measurements from the platform or revoke transactions.</li>
 
 <p></p>
-The following figure shows the how the marketplace processes customers' purchases.
+The following figure shows how the marketplace processes customers' purchases.
 <p></p>
 
 <p align="center">
