@@ -43,8 +43,10 @@ Funcionalities:
 
 <p></p>
 The following figure shows the how the marketplace processes customers' purchases.
+<p></p>
+
 <p align="center">
-  <img src="docs/images/marketplace-scheme.png" height="550px" width="800px" alt="Image">
+  <img src="docs/images/marketplace-scheme.png" height="500px" width="700px" alt="Image">
   <p align="center" id="purchases">Processing of purchases</p>
 </p>
 
