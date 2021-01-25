@@ -190,57 +190,12 @@ func (localClient *localClient) AdminEP(w http.ResponseWriter, req *http.Request
 	}
 }
 
-// EventListener listens to new purchases in the marketplace and process them
-func (localClient *localClient) MarketListener(w http.ResponseWriter, req *http.Request) {
-	// Check whether the URL is correct or not
-	if req.URL.Path != "/marketplace" {
-		http.Error(w, "404 not found", http.StatusNotFound)
-		return
-	}
-
-	// Create a map with body of the message
-	//var bodyArray bodyArray
-	bodyMap := make(map[string]interface{})
-
-	// Read the body of the message
-	err := json.NewDecoder(req.Body).Decode(&bodyMap)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "401 Could not introduce the event in the blockchain because of: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Convert the localClient to libs.ComponentConfig
-	ethClient := libs.ComponentConfig{
-		localClient.EthereumClient,
-		localClient.Address,
-		localClient.PrivateKey,
-		localClient.PublicKey,
-		localClient.DataCon,
-		localClient.AccessCon,
-		localClient.BalanceCon,
-		localClient.GeneralConfig,
-	}
-
-	_ = ethClient
-
-	// Check if the method of the request is correct
-	switch req.Method {
-	case "POST":
-
-	default:
-		http.Error(w, "401 Only POST methods are supported", http.StatusBadRequest)
-		fmt.Fprintf(w, "Only Post methods are supported")
-	}
-
-}
 
 func main() {
 	fmt.Printf("----------- Initializing Core module -----------\n\n")
 	localClient := initialize()
 
 	fmt.Printf("Starting server on port %s\n\n", localClient.GeneralConfig["HTTPport"].(string))
-	http.HandleFunc("/marketplace", localClient.MarketListener)
 	http.HandleFunc("/admin", localClient.AdminEP)
 
 	// Convert the localClient to libs.ComponentConfig
