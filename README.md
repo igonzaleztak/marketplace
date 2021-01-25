@@ -44,7 +44,7 @@ Funcionalities:
 <p></p>
 The following figure shows the how the marketplace processes customers' purchases.
 <p align="center">
-  <img src="docs/images/marketplace-scheme.png" height="400px" width="700px" alt="Image">
+  <img src="docs/images/marketplace-scheme.png" height="550px" width="800px" alt="Image">
   <p align="center" id="purchases">Processing of purchases</p>
 </p>
 
@@ -107,7 +107,6 @@ The purpose of this contract is to set an economy within the marketplace. It is 
 - ` transfer ` (function): Allows the transfer of tokens amongst accounts.
 - ` approve ` (function): This function approves delegated transfers.
 - ` transferFrom ` (function): It allows the transfer of tokens from the dummy account to the users (IoT suppliers and customers). This function can only be used by the administrator of the platform.
-
 
 <p></p>
 <h1>Components involved</h1>
